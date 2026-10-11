@@ -4,14 +4,31 @@
 A hackathon MVP of an adaptive study companion: guided reasoning, interactive visualization, smart notes, and session progress. Designed to let students think for themselves.
 
 ## What works right now
-- **Study chat (Demo mode):** limited, scripted Binary Search Tree / inorder traversal responses; it does **not** claim to be a trained AI agent.
-- **Guided Reasoning:** three locally scripted questions for the AI-selected traversal (inorder, preorder, or postorder), with hints, progress, and a completion message.
-- **Interactive Visualization:** inspect a binary search tree, step forward/backward through inorder, preorder, or postorder traversal, or reset.
-- **Smart Notes:** simplify, save, and delete notes in browser local storage.
-- **Learning Profile:** correct answers, hints used, and walkthrough progress (session-level counters, **not scientifically validated learning-style detection**).
-- **Langflow connection ready:** a Python backend proxy sends messages to Langflow using a per-session ID. Chat becomes real AI once your own live flow is configured.
 
-**Important:** Demo chat, Guided Reasoning, Smart Notes suggestions, and progress are mostly deterministic local interactions. They are NOT evidence of a real Langflow AI agent. Do not claim so in screenshots or submissions until you've connected and tested Langflow.
+Learnique v1.4 is a functional hackathon MVP integrating a Python web application with a Langflow AI Agent.
+
+### Core Features
+
+- **Adaptive AI Study Chat:** Uses Langflow and Gemini to guide students through concepts with questions, explanations, and hints instead of immediately revealing answers.
+- **Guided Reasoning:** Provides three interactive questions with feedback and hints for inorder, preorder, and postorder BST traversal. The Agent selects the traversal, while the questions are locally predefined.
+- **AI-Controlled Interactive Visualization:** The Agent can call BUILD_VISUALIZATION to select the traversal, and the website updates its interactive BST diagram.
+- **AI Smart Notes:** The Agent can call BUILD_NOTE to generate contextual note suggestions. Students choose whether to save them.
+- **Learning Profile:** Tracks exercise progress, correct answers, and hints used in the local browser.
+- **Demo Mode:** Provides limited local functionality when Langflow is not configured.
+
+### AI Agent Integration
+
+Langflow orchestrates the AI tutor and its two custom tools:
+- BUILD_NOTE
+- BUILD_VISUALIZATION
+
+The Python backend communicates with Langflow through its API. Agent responses can include structured directives that update Smart Notes and Visualization in the frontend.
+
+### Current Limitations
+
+Learnique currently demonstrates learning with a fixed Binary Search Tree. Guided Reasoning multiple-choice questions are predefined, and learning progress is stored locally. Cross-session personalized mastery modeling has not yet been implemented.
+
+IBM Bob usage is not yet demonstrated in this repository.
 
 ## Launch on Windows (no npm, no pip)
 1. Unzip the project.
