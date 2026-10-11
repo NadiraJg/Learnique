@@ -28,7 +28,20 @@ The Python backend communicates with Langflow through its API. Agent responses c
 
 Learnique currently demonstrates learning with a fixed Binary Search Tree. Guided Reasoning multiple-choice questions are predefined, and learning progress is stored locally. Cross-session personalized mastery modeling has not yet been implemented.
 
-IBM Bob usage is not yet demonstrated in this repository.
+## IBM Bob Contribution
+
+IBM Bob was used during the development and quality assurance of Learnique v1.4.
+
+- Reviewed the Python backend and Langflow API integration
+- Identified weaknesses in error diagnostics
+- Improved error handling in server.py
+- Added automated test cases for response extraction and safe logging
+- Verified that all 18 automated tests passed
+
+The changes are documented in the GitHub commit:
+`fix: improve Langflow error diagnostics with IBM Bob`
+
+Evidence is available in `screenshots/04-bob-integration.png`.
 
 ## Launch on Windows (no npm, no pip)
 1. Unzip the project.
@@ -102,7 +115,7 @@ Plain HTML/CSS/JavaScript, Python 3 standard library, optional external Langflow
 
 
 ### v1.1 — Feedback Guided Reasoning
-Jawaban salah pada Guided Reasoning sekarang ditandai dan menampilkan petunjuk dengan jelas. Masih dalam Demo Mode, bukan AI Langflow aktif.
+Incorrect answers in Guided Reasoning are now highlighted, with clear hints to help students understand their mistakes. At this stage, the feature still operated in Demo Mode, before the live Langflow AI integration was implemented.
 
 
 ### v1.2 — Langflow → Smart Notes panel (experimental)
