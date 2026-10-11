@@ -1,6 +1,7 @@
 """Run from the project directory: python -m unittest discover -s tests -v"""
 import io
 import json
+import sys
 import unittest
 from http.server import ThreadingHTTPServer
 from threading import Thread
@@ -96,6 +97,112 @@ class ApiTests(unittest.TestCase):
             httpd.shutdown()
             thread.join(timeout=3)
             httpd.server_close()
+
+class ExtractAgentTextTests(unittest.TestCase):
+    """Verify extract_agent_text return values and safe stderr diagnostics."""
+
+    def _valid_response(self, text):
+        """Build the canonical Langflow /api/v1/run response shape."""
+        return {'outputs': [{'outputs': [{'results': {'message': {'text': text}}}]}]}
+
+    # ------------------------------------------------------------------ #
+    # Successful extraction — no stderr output expected                   #
+    # ------------------------------------------------------------------ #
+
+    def test_valid_text_field(self):
+        result = server.extract_agent_text(self._valid_response('Hello world'))
+        self.assertEqual(result, 'Hello world')
+
+    def test_valid_message_field_fallback(self):
+        """When 'text' is absent the function falls back to 'message'."""
+        obj = {'outputs': [{'outputs': [{'results': {'message': {'message': 'Fallback'}}}]}]}
+        self.assertEqual(server.extract_agent_text(obj), 'Fallback')
+
+    def test_valid_string_message(self):
+        """Plain string at message position is returned directly."""
+        obj = {'outputs': [{'outputs': [{'results': {'message': 'Plain string'}}]}]}
+        self.assertEqual(server.extract_agent_text(obj), 'Plain string')
+
+    # ------------------------------------------------------------------ #
+    # Missing / mismatched keys — should return '' and log to stderr      #
+    # ------------------------------------------------------------------ #
+
+    def test_missing_outputs_key_returns_empty(self):
+        buf = io.StringIO()
+        with patch('sys.stderr', buf):
+            result = server.extract_agent_text({'wrong_key': []})
+        self.assertEqual(result, '')
+
+    def test_missing_outputs_key_logs_top_level_keys(self):
+        buf = io.StringIO()
+        with patch('sys.stderr', buf):
+            server.extract_agent_text({'wrong_key': [], 'also_wrong': 1})
+        log = buf.getvalue()
+        self.assertIn('[learnique]', log)
+        self.assertIn('wrong_key', log)
+        self.assertIn('also_wrong', log)
+        self.assertNotIn('student', log.lower())   # no conversation content
+
+    def test_empty_outputs_list_returns_empty(self):
+        buf = io.StringIO()
+        with patch('sys.stderr', buf):
+            result = server.extract_agent_text({'outputs': []})
+        self.assertEqual(result, '')
+        self.assertIn('[learnique]', buf.getvalue())
+
+    def test_missing_results_key_logs_inner_keys(self):
+        """Logs outputs[0] keys so the developer can see which node is missing."""
+        obj = {'outputs': [{'outputs': [{'no_results_here': {}}]}]}
+        buf = io.StringIO()
+        with patch('sys.stderr', buf):
+            server.extract_agent_text(obj)
+        log = buf.getvalue()
+        self.assertIn('outputs[0] keys', log)
+
+    def test_non_dict_response_returns_empty(self):
+        buf = io.StringIO()
+        with patch('sys.stderr', buf):
+            result = server.extract_agent_text([1, 2, 3])
+        self.assertEqual(result, '')
+        self.assertIn('<list>', buf.getvalue())
+
+    def test_none_response_returns_empty(self):
+        buf = io.StringIO()
+        with patch('sys.stderr', buf):
+            result = server.extract_agent_text(None)
+        self.assertEqual(result, '')
+        self.assertIn('[learnique]', buf.getvalue())
+
+    def test_unexpected_message_type_logs_type_name(self):
+        """A non-string, non-dict message value logs its type without its content."""
+        obj = {'outputs': [{'outputs': [{'results': {'message': 42}}]}]}
+        buf = io.StringIO()
+        with patch('sys.stderr', buf):
+            result = server.extract_agent_text(obj)
+        self.assertEqual(result, '')
+        log = buf.getvalue()
+        self.assertIn('int', log)
+        # The raw value (42) must not appear so we can be sure content isn't logged.
+        self.assertNotIn('42', log)
+
+    def test_no_stderr_on_success(self):
+        """Successful extraction must produce zero stderr output."""
+        buf = io.StringIO()
+        with patch('sys.stderr', buf):
+            server.extract_agent_text(self._valid_response('All good'))
+        self.assertEqual(buf.getvalue(), '')
+
+    def test_log_never_contains_api_key_shaped_content(self):
+        """Even with a fabricated key-like structure in response, keys stay out of logs."""
+        obj = {'outputs': [{'outputs': [{'results': {'message': {'api_key': 'sk-secret'}}}]}]}
+        buf = io.StringIO()
+        with patch('sys.stderr', buf):
+            server.extract_agent_text(obj)
+        # Success path: no stderr at all (the key is in 'text'/'message' fallback
+        # position, but the dict has neither 'text' nor 'message' so returns '').
+        # Either way the raw value 'sk-secret' must not reach stderr.
+        self.assertNotIn('sk-secret', buf.getvalue())
+
 
 if __name__ == '__main__':
     unittest.main()

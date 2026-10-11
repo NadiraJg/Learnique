@@ -6,6 +6,7 @@ Never exposes LANGFLOW_API_KEY to the browser or commits it to GitHub.
 import json
 import os
 import re
+import sys
 from pathlib import Path
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from urllib.request import Request, urlopen
@@ -39,15 +40,40 @@ LIVE = bool(LANGFLOW_URL and FLOW_ID)
 
 
 def extract_agent_text(obj):
-    """Read typical /api/v1/run/{flow_id} nested Chat Output result."""
+    """Read typical /api/v1/run/{flow_id} nested Chat Output result.
+
+    Logs safe structural diagnostics to stderr when the response shape is
+    unexpected so developers can diagnose Langflow misconfiguration without
+    any API keys, tokens, or student content appearing in the output.
+    """
     try:
         value = obj['outputs'][0]['outputs'][0]['results']['message']
         if isinstance(value, dict):
             return value.get('text') or value.get('message') or ''
         if isinstance(value, str):
             return value
-    except (KeyError, IndexError, TypeError):
-        pass
+        # Extraction reached an unexpected leaf type — safe to log its type only.
+        print(
+            f'[learnique] extract_agent_text: unexpected message value type '
+            f'{type(value).__name__!r}. Check the Chat Output node connection.',
+            file=sys.stderr,
+        )
+    except (KeyError, IndexError, TypeError) as exc:
+        # Log only the exception type and safe structural hints — never values.
+        top_keys = list(obj.keys()) if isinstance(obj, dict) else f'<{type(obj).__name__}>'
+        outputs_hint = ''
+        if isinstance(obj, dict) and 'outputs' in obj:
+            outer = obj['outputs']
+            if isinstance(outer, list) and outer:
+                inner = outer[0]
+                if isinstance(inner, dict):
+                    outputs_hint = f', outputs[0] keys={list(inner.keys())}'
+        print(
+            f'[learnique] extract_agent_text failed ({type(exc).__name__}). '
+            f'Top-level keys={top_keys}{outputs_hint}. '
+            f'Verify the flow has a Chat Output node connected to the agent.',
+            file=sys.stderr,
+        )
     return ''
 
 
