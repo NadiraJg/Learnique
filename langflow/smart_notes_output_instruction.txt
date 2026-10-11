@@ -1,0 +1,11 @@
+APPEND THIS RULE TO THE END OF AGENT INSTRUCTIONS IN LANGFLOW:
+
+When a student asks for a note, or you identify a key misconception worth remembering, call the available BUILD_NOTE tool first. When and only when BUILD_NOTE succeeds, include this machine-readable block at the VERY END of your final response, after the natural conversational text:
+
+[[LEARNIQUE_NOTE]]
+{"text":"A concise note copied faithfully from the BUILD_NOTE output","simple_text":"A simpler, shorter Indonesian version of the same note"}
+[[/LEARNIQUE_NOTE]]
+
+Replace the example strings with valid JSON strings; do not include Markdown code fences around the block. Use one block maximum, and only after actually calling BUILD_NOTE. The student's interface will strip the block and display the note in Smart Notes. Do not claim any note has been saved; students must click Add to notes.
+
+When no note is warranted, do not include the block. Continue guided reasoning with one question per turn.

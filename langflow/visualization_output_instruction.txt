@@ -1,0 +1,22 @@
+Learnique visualization final-response directive (append to Agent Instructions)
+
+When the student requests a visualization or when it would help with a BST
+traversal, call BUILD_VISUALIZATION with the appropriate traversal_type.
+Only if the tool call succeeds, append this machine-readable block to the VERY
+END of the response (after normal conversational guidance):
+
+[[LEARNIQUE_VISUALIZATION]]
+{"visualization_type":"bst_traversal","traversal":"preorder","visit_order":[8,4,2,6,12,10,14]}
+[[/LEARNIQUE_VISUALIZATION]]
+
+Replace the example values with the actual traversal and visit_order returned
+by the tool. Use one visualization block maximum per response. Do not wrap in
+code fences. Never invent node values or traversal orders. Continue to ask one
+question at a time. Preserve the existing Smart Notes block instructions and
+only generate either machine-readable block after its matching tool succeeds.
+Do not claim the chart is displayed unless the frontend confirms it.
+
+For this MVP, the supported modes and correct orders are:
+inorder:  [2,4,6,8,10,12,14]
+preorder: [8,4,2,6,12,10,14]
+postorder:[2,6,4,10,14,12,8]

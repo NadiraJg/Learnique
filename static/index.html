@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f6f4ef" />
+  <title>Learnique — Because everyone learns differently</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script defer src="/static/app.js"></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar" aria-label="Navigasi belajar">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">L<span class="brand-dot">.</span></span><div><strong>Learnique</strong><small>your study companion</small></div></div>
+      <div class="side-section-title">WORKSPACE</div>
+      <nav class="nav-stack">
+        <button id="navStudy" class="nav-item selected"><span class="nav-icon">▤</span> Study space <span class="nav-mini">01</span></button>
+        <button id="navVisual" class="nav-item"><span class="nav-icon">◇</span> Visual lab</button>
+        <button id="navNotes" class="nav-item"><span class="nav-icon">▧</span> My notes <span id="sideNoteCount" class="nav-mini">0</span></button>
+      </nav>
+      <div class="side-section-title space-top">CURRENT MODULE</div>
+      <div class="module-box">
+        <div class="module-eyebrow">DATA STRUCTURES</div>
+        <div class="module-title">Binary Search Trees</div>
+        <div class="module-sub">Traversal practice · Beginner</div>
+        <div class="progress-track"><div id="sidebarProgress"></div></div>
+        <div class="module-progress"><span>Walkthrough progress</span><strong id="sideProgressText">0 / 3</strong></div>
+      </div>
+      <div class="sidebar-bottom"><span class="mini-avatar">LM</span><span><strong>My learning space</strong><small>Local prototype</small></span><button id="resetAll" title="Reset demo" aria-label="Reset demo">↻</button></div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <span class="breadcrumb">Workspace <span>/</span> <strong>Study space</strong></span>
+        <span class="mode-tag" id="modeTag"><span class="status-dot"></span> Demo mode</span>
+      </header>
+      <section class="page-heading">
+        <div class="kicker">YOUR PERSONAL STUDY SPACE</div>
+        <h1>Learn it your way<span class="heading-period">.</span></h1>
+        <p>A little guidance, one step at a time. You do the thinking.</p>
+      </section>
+
+      <div class="workspace-grid">
+        <section class="chat-panel" id="studyPanel" aria-label="Percakapan belajar">
+          <div class="panel-heading"><div><span class="small-overline">NOW STUDYING</span><h2>Understanding BST traversal</h2></div><span class="live-pill">● Session active</span></div>
+          <div id="chatMessages" class="chat-messages" aria-live="polite"></div>
+          <div id="guidedCard" class="guided-card hidden" aria-live="polite">
+            <div class="guided-head"><span>✧ GUIDED REASONING · <span id="guidedTopic">INORDER</span></span><span id="guidedCounter">Step 1 / 3</span></div>
+            <strong id="guidedQuestion"></strong>
+            <p id="guidedHint" class="guided-hint"></p>
+            <div id="guidedAnswers" class="answer-list"></div>
+            <div id="guidedFeedback" class="guided-feedback hidden" role="status" aria-live="polite"></div>
+          </div>
+          <div class="prompt-row" id="quickPrompts">
+            <button data-action="explain">Explain simply</button>
+            <button data-action="guide">I'm stuck</button>
+            <button data-action="visual">Show visualization</button>
+            <button data-action="quiz">Quiz me</button>
+          </div>
+          <form id="chatForm" class="composer" autocomplete="off">
+            <label class="sr-only" for="messageInput">Ask Learnique</label>
+            <input id="messageInput" name="message" placeholder="Ask a question about BST traversal..." maxlength="1600" required />
+            <button type="submit" id="sendBtn" aria-label="Send question">↑</button>
+          </form>
+          <div class="composer-foot">Learnique encourages reasoning before answers. <span id="sendStatus"></span></div>
+        </section>
+
+        <aside class="tools-column" aria-label="Study tools">
+          <section class="tool-card" id="visualPanel">
+            <div class="card-top"><div><span class="small-overline">INTERACTIVE VISUALIZATION</span><h3>Explore the tree</h3></div><span class="small-icon" aria-hidden="true">↗</span></div>
+            <p class="card-explainer" id="vizExplainer">Click a node or step through inorder: Left → Root → Right.</p>
+            <div id="vizSource" class="visual-source" role="status">Demo example · Inorder</div>
+            <div class="tree-stage">
+              <svg id="treeSvg" viewBox="0 0 330 210" role="img" aria-label="Binary search tree with nodes 8, 4, 12, 2, 6, 10, 14"></svg>
+            </div>
+            <div class="viz-meta"><span id="vizStatus">Ready to explore</span><span id="vizCount">0 / 7 nodes</span></div>
+            <div id="visitSequence" class="visit-sequence"><span class="placeholder">Your traversal will appear here</span></div>
+            <div class="visual-actions"><button id="prevStep" class="btn-secondary">← Previous</button><button id="nextStep" class="btn-primary">Next step →</button><button id="resetSteps" class="btn-quiet" aria-label="Reset visualization" title="Reset visualization">↻</button></div>
+          </section>
+          <section class="tool-card" id="notesPanel">
+            <div class="card-top"><div><span class="small-overline">SMART NOTES</span><h3>Worth remembering</h3></div><span class="small-icon">✎</span></div>
+            <div class="note-suggestion"><span class="recommend-tag">✦ Suggested note</span><p id="suggestedNote">Inorder traversal visits: left subtree → root → right subtree.</p><div class="suggestion-actions"><button id="saveNoteBtn" class="btn-primary mini">+ Add to notes</button><button id="rewriteNoteBtn" class="text-button">Simplify</button></div></div>
+            <div class="saved-head"><strong>Saved notes</strong><span id="noteCount">0</span></div>
+            <div id="savedNotes" class="saved-notes"><p class="empty-notes">Your useful insights will appear here.</p></div>
+          </section>
+          <section class="tool-card profile-card" id="profilePanel">
+            <div class="card-top"><div><span class="small-overline">LEARNING PROFILE</span><h3>Your progress</h3></div><span class="small-icon">◌</span></div>
+            <div class="profile-stat"><div><strong id="completedSteps">0/3</strong><small>guided steps</small></div><div><strong id="correctAnswers">0</strong><small>correct answers</small></div><div><strong id="hintRequests">0</strong><small>hints used</small></div></div>
+            <p class="profile-caption" id="profileInsight">Your progress updates as you practice. No learning style labels.</p>
+          </section>
+        </aside>
+      </div>
+      <footer>LEARNIQUE <span>•</span> Because everyone learns differently <span>•</span> Prototype v1.4</footer>
+    </main>
+  </div>
+</body>
+</html>
