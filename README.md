@@ -5,7 +5,7 @@ A hackathon MVP of an adaptive study companion: guided reasoning, interactive vi
 
 ## What works right now
 
-Learnique v1.4 is a functional hackathon MVP integrating a Python web application with a Langflow AI Agent.
+Learnique is a functional hackathon MVP integrating a Python web application with a Langflow AI Agent.
 
 ### Core Features
 
